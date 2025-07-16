@@ -1,0 +1,783 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Games Hub - Dark Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00d4ff, #5865f2, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            border: 2px solid transparent;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(45deg, #ff5252, #e53e3e);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00d4ff;
+        }
+
+        .game-description {
+            color: #b0b0b0;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .play-button {
+            background: linear-gradient(45deg, #00d4ff, #5865f2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .play-button:hover {
+            background: linear-gradient(45deg, #0099cc, #4752c4);
+            transform: translateY(-2px);
+        }
+
+        .wordle-game {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .wordle-grid {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 8px;
+            margin: 30px auto;
+            width: fit-content;
+        }
+
+        .wordle-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .wordle-cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #404040;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .wordle-cell.correct {
+            background: #6aaa64;
+            border-color: #6aaa64;
+        }
+
+        .wordle-cell.present {
+            background: #c9b458;
+            border-color: #c9b458;
+        }
+
+        .wordle-cell.absent {
+            background: #787c7e;
+            border-color: #787c7e;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 500px;
+            margin: 30px auto;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .key {
+            background: #818384;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 35px;
+            text-transform: uppercase;
+        }
+
+        .key:hover {
+            background: #565758;
+        }
+
+        .key.wide {
+            min-width: 60px;
+            font-size: 0.8rem;
+        }
+
+        .game-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-size: 1.1rem;
+            width: 100%;
+            margin: 20px 0;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .game-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background: rgba(106, 170, 100, 0.2);
+            border: 1px solid #6aaa64;
+            color: #6aaa64;
+        }
+
+        .message.error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .wordle-cell {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .keyboard {
+                max-width: 350px;
+            }
+            
+            .key {
+                padding: 10px 6px;
+                min-width: 30px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="logo">WORDLE HUB</h1>
+            <p class="subtitle">Experience the best word games in dark mode</p>
+            <a href="https://wordleunlimitedunblocked.com/" target="_blank" rel="dofollow" class="cta-button">
+                🎮 Play Wordle Unlimited
+            </a>
+        </header>
+
+        <div id="gameSelection" class="games-grid">
+            <div class="game-card">
+                <h3 class="game-title">🎯 Classic Wordle</h3>
+                <p class="game-description">
+                    Guess the 5-letter word in 6 attempts. Each guess provides clues to help you solve the puzzle.
+                </p>
+                <button class="play-button" onclick="startGame('wordle')">Play Now</button>
+            </div>
+
+            <div class="game-card">
+                <h3 class="game-title">🔤 Word Scramble</h3>
+                <p class="game-description">
+                    Unscramble the letters to form valid words. Test your vocabulary and quick thinking skills.
+                </p>
+                <button class="play-button" onclick="startGame('scramble')">Play Now</button>
+            </div>
+
+            <div class="game-card">
+                <h3 class="game-title">🧩 Word Chain</h3>
+                <p class="game-description">
+                    Create a chain of words where each word starts with the last letter of the previous word.
+                </p>
+                <button class="play-button" onclick="startGame('chain')">Play Now</button>
+            </div>
+
+            <div class="game-card">
+                <h3 class="game-title">⚡ Speed Words</h3>
+                <p class="game-description">
+                    Type as many valid words as you can in 60 seconds. Challenge your typing speed and vocabulary.
+                </p>
+                <button class="play-button" onclick="startGame('speed')">Play Now</button>
+            </div>
+        </div>
+
+        <!-- Wordle Game -->
+        <div id="wordleGame" class="wordle-game">
+            <button class="back-button" onclick="backToMenu()">← Back to Games</button>
+            <h2 class="game-title">Classic Wordle</h2>
+            <div class="wordle-grid" id="wordleGrid"></div>
+            <div class="keyboard" id="keyboard"></div>
+            <div id="wordleMessage"></div>
+        </div>
+
+        <!-- Word Scramble Game -->
+        <div id="scrambleGame" class="wordle-game">
+            <button class="back-button" onclick="backToMenu()">← Back to Games</button>
+            <h2 class="game-title">Word Scramble</h2>
+            <div style="text-align: center;">
+                <h3 id="scrambledWord" style="font-size: 2rem; margin: 30px 0; color: #00d4ff;"></h3>
+                <input type="text" id="scrambleInput" class="game-input" placeholder="Enter your guess">
+                <button class="play-button" onclick="checkScramble()" style="width: auto; padding: 15px 30px;">Submit Guess</button>
+                <button class="play-button" onclick="newScramble()" style="width: auto; padding: 15px 30px; margin-left: 10px;">New Word</button>
+            </div>
+            <div id="scrambleMessage"></div>
+        </div>
+
+        <!-- Word Chain Game -->
+        <div id="chainGame" class="wordle-game">
+            <button class="back-button" onclick="backToMenu()">← Back to Games</button>
+            <h2 class="game-title">Word Chain</h2>
+            <div style="text-align: center;">
+                <p id="chainInstruction" style="margin: 20px 0; color: #b0b0b0;"></p>
+                <div id="chainWords" style="margin: 20px 0; min-height: 100px;"></div>
+                <input type="text" id="chainInput" class="game-input" placeholder="Enter next word">
+                <button class="play-button" onclick="addChainWord()" style="width: auto; padding: 15px 30px;">Add Word</button>
+                <button class="play-button" onclick="resetChain()" style="width: auto; padding: 15px 30px; margin-left: 10px;">Reset Chain</button>
+            </div>
+            <div id="chainMessage"></div>
+        </div>
+
+        <!-- Speed Words Game -->
+        <div id="speedGame" class="wordle-game">
+            <button class="back-button" onclick="backToMenu()">← Back to Games</button>
+            <h2 class="game-title">Speed Words</h2>
+            <div style="text-align: center;">
+                <div id="speedTimer" style="font-size: 2rem; margin: 20px 0; color: #ff6b6b;">60</div>
+                <div id="speedScore" style="font-size: 1.5rem; margin: 20px 0; color: #00d4ff;">Score: 0</div>
+                <input type="text" id="speedInput" class="game-input" placeholder="Type words here..." disabled>
+                <button class="play-button" onclick="startSpeedGame()" id="speedButton" style="width: auto; padding: 15px 30px;">Start Game</button>
+                <div id="speedWordList" style="margin: 20px 0; min-height: 100px; color: #b0b0b0;"></div>
+            </div>
+            <div id="speedMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global game state
+        let currentGame = null;
+        let wordleState = {
+            currentRow: 0,
+            currentCol: 0,
+            targetWord: '',
+            gameOver: false,
+            words: ['LIGHT', 'ABOUT', 'NEVER', 'WORLD', 'HAPPY', 'MUSIC', 'DREAM', 'SMILE', 'DANCE', 'PEACE']
+        };
+
+        let scrambleState = {
+            originalWord: '',
+            scrambledWord: '',
+            words: ['COMPUTER', 'ELEPHANT', 'MOUNTAIN', 'RAINBOW', 'SUNSHINE', 'BUTTERFLY', 'INTERNET', 'FREEDOM', 'JOURNEY', 'MYSTERY']
+        };
+
+        let chainState = {
+            words: [],
+            lastLetter: ''
+        };
+
+        let speedState = {
+            timeLeft: 60,
+            score: 0,
+            timer: null,
+            gameActive: false,
+            usedWords: []
+        };
+
+        // Initialize games
+        function startGame(gameType) {
+            document.getElementById('gameSelection').style.display = 'none';
+            
+            if (gameType === 'wordle') {
+                initWordle();
+                document.getElementById('wordleGame').style.display = 'block';
+            } else if (gameType === 'scramble') {
+                initScramble();
+                document.getElementById('scrambleGame').style.display = 'block';
+            } else if (gameType === 'chain') {
+                initChain();
+                document.getElementById('chainGame').style.display = 'block';
+            } else if (gameType === 'speed') {
+                initSpeed();
+                document.getElementById('speedGame').style.display = 'block';
+            }
+            
+            currentGame = gameType;
+        }
+
+        function backToMenu() {
+            document.querySelectorAll('.wordle-game').forEach(game => {
+                game.style.display = 'none';
+            });
+            document.getElementById('gameSelection').style.display = 'grid';
+            currentGame = null;
+            
+            // Reset speed game timer
+            if (speedState.timer) {
+                clearInterval(speedState.timer);
+                speedState.timer = null;
+                speedState.gameActive = false;
+            }
+        }
+
+        // Wordle Game Implementation
+        function initWordle() {
+            wordleState.targetWord = wordleState.words[Math.floor(Math.random() * wordleState.words.length)];
+            wordleState.currentRow = 0;
+            wordleState.currentCol = 0;
+            wordleState.gameOver = false;
+            
+            createWordleGrid();
+            createKeyboard();
+            document.getElementById('wordleMessage').innerHTML = '';
+        }
+
+        function createWordleGrid() {
+            const grid = document.getElementById('wordleGrid');
+            grid.innerHTML = '';
+            
+            for (let row = 0; row < 6; row++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'wordle-row';
+                
+                for (let col = 0; col < 5; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'wordle-cell';
+                    cell.id = `cell-${row}-${col}`;
+                    rowDiv.appendChild(cell);
+                }
+                
+                grid.appendChild(rowDiv);
+            }
+        }
+
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            const keys = [
+                ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+                ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+            ];
+            
+            keyboard.innerHTML = '';
+            
+            keys.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+                
+                row.forEach(key => {
+                    const keyButton = document.createElement('button');
+                    keyButton.className = key.length > 1 ? 'key wide' : 'key';
+                    keyButton.textContent = key === 'BACKSPACE' ? '⌫' : key;
+                    keyButton.onclick = () => handleKeyPress(key);
+                    rowDiv.appendChild(keyButton);
+                });
+                
+                keyboard.appendChild(rowDiv);
+            });
+        }
+
+        function handleKeyPress(key) {
+            if (wordleState.gameOver) return;
+            
+            if (key === 'BACKSPACE') {
+                if (wordleState.currentCol > 0) {
+                    wordleState.currentCol--;
+                    document.getElementById(`cell-${wordleState.currentRow}-${wordleState.currentCol}`).textContent = '';
+                }
+            } else if (key === 'ENTER') {
+                if (wordleState.currentCol === 5) {
+                    checkWordleGuess();
+                }
+            } else if (wordleState.currentCol < 5) {
+                document.getElementById(`cell-${wordleState.currentRow}-${wordleState.currentCol}`).textContent = key;
+                wordleState.currentCol++;
+            }
+        }
+
+        function checkWordleGuess() {
+            const guess = [];
+            for (let i = 0; i < 5; i++) {
+                guess.push(document.getElementById(`cell-${wordleState.currentRow}-${i}`).textContent);
+            }
+            const guessWord = guess.join('');
+            
+            // Check each letter
+            for (let i = 0; i < 5; i++) {
+                const cell = document.getElementById(`cell-${wordleState.currentRow}-${i}`);
+                const letter = guessWord[i];
+                
+                if (letter === wordleState.targetWord[i]) {
+                    cell.classList.add('correct');
+                } else if (wordleState.targetWord.includes(letter)) {
+                    cell.classList.add('present');
+                } else {
+                    cell.classList.add('absent');
+                }
+            }
+            
+            if (guessWord === wordleState.targetWord) {
+                showMessage('wordleMessage', 'Congratulations! You guessed the word!', 'success');
+                wordleState.gameOver = true;
+            } else if (wordleState.currentRow === 5) {
+                showMessage('wordleMessage', `Game over! The word was ${wordleState.targetWord}`, 'error');
+                wordleState.gameOver = true;
+            } else {
+                wordleState.currentRow++;
+                wordleState.currentCol = 0;
+            }
+        }
+
+        // Word Scramble Game
+        function initScramble() {
+            newScramble();
+            document.getElementById('scrambleInput').value = '';
+            document.getElementById('scrambleMessage').innerHTML = '';
+        }
+
+        function newScramble() {
+            scrambleState.originalWord = scrambleState.words[Math.floor(Math.random() * scrambleState.words.length)];
+            scrambleState.scrambledWord = scrambleWord(scrambleState.originalWord);
+            document.getElementById('scrambledWord').textContent = scrambleState.scrambledWord;
+            document.getElementById('scrambleInput').value = '';
+            document.getElementById('scrambleMessage').innerHTML = '';
+        }
+
+        function scrambleWord(word) {
+            const letters = word.split('');
+            for (let i = letters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [letters[i], letters[j]] = [letters[j], letters[i]];
+            }
+            return letters.join('');
+        }
+
+        function checkScramble() {
+            const guess = document.getElementById('scrambleInput').value.toUpperCase();
+            if (guess === scrambleState.originalWord) {
+                showMessage('scrambleMessage', 'Correct! Well done!', 'success');
+                setTimeout(newScramble, 2000);
+            } else {
+                showMessage('scrambleMessage', 'Try again!', 'error');
+            }
+        }
+
+        // Word Chain Game
+        function initChain() {
+            resetChain();
+        }
+
+        function resetChain() {
+            chainState.words = [];
+            chainState.lastLetter = '';
+            document.getElementById('chainWords').innerHTML = '';
+            document.getElementById('chainInput').value = '';
+            document.getElementById('chainMessage').innerHTML = '';
+            document.getElementById('chainInstruction').textContent = 'Start with any word!';
+        }
+
+        function addChainWord() {
+            const input = document.getElementById('chainInput');
+            const word = input.value.toUpperCase().trim();
+            
+            if (!word) {
+                showMessage('chainMessage', 'Please enter a word!', 'error');
+                return;
+            }
+            
+            if (word.length < 2) {
+                showMessage('chainMessage', 'Word must be at least 2 letters long!', 'error');
+                return;
+            }
+            
+            if (chainState.words.includes(word)) {
+                showMessage('chainMessage', 'Word already used!', 'error');
+                return;
+            }
+            
+            if (chainState.lastLetter && word[0] !== chainState.lastLetter) {
+                showMessage('chainMessage', `Word must start with "${chainState.lastLetter}"!`, 'error');
+                return;
+            }
+            
+            chainState.words.push(word);
+            chainState.lastLetter = word[word.length - 1];
+            
+            updateChainDisplay();
+            input.value = '';
+            document.getElementById('chainInstruction').textContent = `Next word must start with "${chainState.lastLetter}"`;
+            showMessage('chainMessage', 'Word added! Keep the chain going!', 'success');
+        }
+
+        function updateChainDisplay() {
+            const container = document.getElementById('chainWords');
+            container.innerHTML = chainState.words.map((word, index) => 
+                `<span style="background: rgba(0,212,255,0.2); padding: 8px 15px; margin: 5px; border-radius: 20px; display: inline-block;">${word}</span>`
+            ).join('');
+        }
+
+        // Speed Words Game
+        function initSpeed() {
+            speedState.timeLeft = 60;
+            speedState.score = 0;
+            speedState.usedWords = [];
+            speedState.gameActive = false;
+            
+            document.getElementById('speedTimer').textContent = speedState.timeLeft;
+            document.getElementById('speedScore').textContent = `Score: ${speedState.score}`;
+            document.getElementById('speedInput').disabled = true;
+            document.getElementById('speedInput').value = '';
+            document.getElementById('speedWordList').innerHTML = '';
+            document.getElementById('speedMessage').innerHTML = '';
+            document.getElementById('speedButton').textContent = 'Start Game';
+        }
+
+        function startSpeedGame() {
+            if (!speedState.gameActive) {
+                speedState.gameActive = true;
+                speedState.timeLeft = 60;
+                speedState.score = 0;
+                speedState.usedWords = [];
+                
+                document.getElementById('speedInput').disabled = false;
+                document.getElementById('speedInput').focus();
+                document.getElementById('speedButton').textContent = 'Game Active';
+                document.getElementById('speedButton').disabled = true;
+                
+                speedState.timer = setInterval(updateSpeedTimer, 1000);
+                
+                // Add event listener for Enter key
+                document.getElementById('speedInput').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkSpeedWord();
+                    }
+                });
+            }
+        }
+
+        function updateSpeedTimer() {
+            speedState.timeLeft--;
+            document.getElementById('speedTimer').textContent = speedState.timeLeft;
+            
+            if (speedState.timeLeft <= 0) {
+                endSpeedGame();
+            }
+        }
+
+        function checkSpeedWord() {
+            const input = document.getElementById('speedInput');
+            const word = input.value.toUpperCase().trim();
+            
+            if (word.length >= 3 && !speedState.usedWords.includes(word)) {
+                speedState.usedWords.push(word);
+                speedState.score += word.length;
+                
+                document.getElementById('speedScore').textContent = `Score: ${speedState.score}`;
+                updateSpeedWordList();
+                showMessage('speedMessage', `+${word.length} points!`, 'success');
+                
+                setTimeout(() => {
+                    document.getElementById('speedMessage').innerHTML = '';
+                }, 1000);
+            }
+            
+            input.value = '';
+        }
+
+        function updateSpeedWordList() {
+            const container = document.getElementById('speedWordList');
+            container.innerHTML = '<strong>Words entered:</strong><br>' + 
+                speedState.usedWords.slice(-10).map(word => 
+                    `<span style="background: rgba(0,212,255,0.2); padding: 5px 10px; margin: 3px; border-radius: 15px; display: inline-block; font-size: 0.9rem;">${word}</span>`
+                ).join('');
+        }
+
+        function endSpeedGame() {
+            clearInterval(speedState.timer);
+            speedState.gameActive = false;
+            
+            document.getElementById('speedInput').disabled = true;
+            document.getElementById('speedButton').disabled = false;
+            document.getElementById('speedButton').textContent = 'Play Again';
+            
+            showMessage('speedMessage', `Game Over! Final Score: ${speedState.score} points with ${speedState.usedWords.length} words!`, 'success');
+        }
+
+        // Utility functions
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="message ${type}">${message}</div>`;
+        }
+
+        // Keyboard support for Wordle
+        document.addEventListener('keydown', function(e) {
+            if (currentGame === 'wordle') {
+                if (e.key >= 'a' && e.key <= 'z') {
+                    handleKeyPress(e.key.toUpperCase());
+                } else if (e.key === 'Backspace') {
+                    handleKeyPress('BACKSPACE');
+                } else if (e.key === 'Enter') {
+                    handleKeyPress('ENTER');
+                }
+            }
+        });
+
+        // Initialize scramble input event
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrambleInput = document.getElementById('scrambleInput');
+            if (scrambleInput) {
+                scrambleInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkScramble();
+                    }
+                });
+            }
+            
+            const chainInput = document.getElementById('chainInput');
+            if (chainInput) {
+                chainInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addChainWord();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
